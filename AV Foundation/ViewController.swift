@@ -37,6 +37,10 @@ class ViewController: UIViewController {
     var frontCameraInput: AVCaptureDeviceInput?
     var rearCameraInput: AVCaptureDeviceInput?
     
+    var photoOutput: AVCapturePhotoOutput?
+    
+    var previewLayer: AVCaptureVideoPreviewLayer?
+    
     enum CameraControllerError: Error {
         case captureSessionAlreadyRunning
         case captureSessionIsMissing
@@ -113,7 +117,15 @@ extension ViewController {
         }
         
         func configurePhotoOutput() throws {
+            guard let captureSession = self.captureSession else { throw CameraControllerError.captureSessionIsMissing }
             
+            self.photoOutput = AVCapturePhotoOutput()
+            self.photoOutput?.setPreparedPhotoSettingsArray([AVCapturePhotoSettings(format: [AVVideoCodecKey: AVVideoCodecJPEG])], completionHandler: nil)
+            
+            if captureSession.canAddOutput(self.photoOutput) {
+                captureSession.addOutput(self.photoOutput)
+            }
+            captureSession.startRunning()
         }
         
         DispatchQueue(label: "prepare").async {
@@ -132,6 +144,10 @@ extension ViewController {
                 completionHandler(nil)
             }
         }
+    }
+    
+    func displayPreview(on view: UIView) throws {
+        
     }
 }
 
